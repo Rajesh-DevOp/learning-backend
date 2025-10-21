@@ -50,9 +50,11 @@ const userSchema = new Schema(
   }
 );
 
-
+// arrow function ke pass this ka reference  nhi pata hota
 userSchema.pre("save" , async function (next){
-    if(!this.password.isModified()) return next() ;
+
+    if(!this.password.isModified("password")) return next() ;
+
     this.password = bcrypt.hash(this.password , 10);
     next();
 })
