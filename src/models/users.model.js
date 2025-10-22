@@ -28,7 +28,7 @@ const userSchema = new Schema(
       type: String, // url cloudinary
       required: true,
     },
-    coverimage: {
+    coverImage: {
       type: String, // cloudinary url
     },
     watchHistory: [
@@ -53,9 +53,9 @@ const userSchema = new Schema(
 // arrow function ke pass this ka reference  nhi pata hota
 userSchema.pre("save" , async function (next){
 
-    if(!this.password.isModified("password")) return next() ;
+    if(!this.isModified("password")) return next() ;
 
-    this.password = bcrypt.hash(this.password , 10);
+    this.password = await bcrypt.hash(this.password , 10);
     next();
 })
 
@@ -63,7 +63,7 @@ userSchema.methods.isPasswordCorrect = async function (password){
   return await bcrypt.compare(password ,this.password );
 }
 
-userSchema.methods.generateAccessToke = function (){
+userSchema.methods.generateAccessToken = function (){
   return jwt.sign(
     {
       _id :this._id,

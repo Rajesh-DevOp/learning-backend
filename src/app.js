@@ -1,7 +1,7 @@
 import express, { urlencoded } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
+import {ApiError} from "./utils/ApiError.js"
 
 const app = express();
 
@@ -22,6 +22,39 @@ app.use(urlencoded({
 app.use(express.static("public"));
 // to read and write cookies /perform crud operation on client side by server
 app.use(cookieParser());
+
+
+
+
+
+//route
+import userRouter from "./routes/users.route.js"
+
+app.use("/api/v1/users",userRouter);
+
+
+// Error handling middleware — must be AFTER all routes
+app.use((err, req, res, next) => {
+  console.error("Error middleware:", err);
+
+  // Agar ApiError instance hai
+  if (err instanceof ApiError) {
+    return res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message || "Something went wrong",
+      errors: err.errors || [],
+      stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    });
+  }
+
+  // Generic error fallback
+  return res.status(500).json({
+    success: false,
+    message: err.message || "Internal server error",
+    errors: [],
+    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+  });
+});
 
 
 export default app;
